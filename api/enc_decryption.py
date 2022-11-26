@@ -1,4 +1,5 @@
 import ast
+import hashlib
 import bcrypt
 import jwt
 from django.conf import settings
@@ -6,13 +7,15 @@ import string
 import random
 
 # Password Section
-def hash_password(password):
+def hash_password(password):    
     salt = bcrypt.gensalt(rounds=9)            
-    hashed = bcrypt.hashpw(password.encode(settings.ENCODE_ALGORITHM), salt)        
+    sha_password=hashlib.sha256(password.encode(settings.ENCODE_ALGORITHM)).digest()    
+    hashed = bcrypt.hashpw(sha_password,salt)        
     return hashed
 
-def check_password(password,hashed):         
-    if bcrypt.checkpw(password.encode(settings.ENCODE_ALGORITHM), ast.literal_eval(hashed)):        
+def check_password(password,hashed):     
+    sha_password=hashlib.sha256(password.encode(settings.ENCODE_ALGORITHM)).digest()    
+    if bcrypt.checkpw(sha_password, ast.literal_eval(hashed)):        
         return True
     else:        
         return False  

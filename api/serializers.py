@@ -1,37 +1,42 @@
-from rest_framework import serializers
+from rest_framework_mongoengine import serializers
 from api.models import *
 
-class PatientsSerializer(serializers.ModelSerializer):
+class AdministratorsSerializer(serializers.DocumentSerializer):
     class Meta:
-        model=Patients
-        fields="__all__"
+        model=Administrators
+        exclude=("password",)
 
-class DoctorsSerializer(serializers.ModelSerializer):
+class DoctorsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Doctors
         exclude=("password",)
 
-class NursesSerializer(serializers.ModelSerializer):
+class NursesSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Nurses
         exclude=("password",)
 
-class PharmacistsSerializer(serializers.ModelSerializer):
+class PharmacistsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Pharmacists
         exclude=("password",)
 
-class AdmissionsSerializer(serializers.ModelSerializer):
+class PatientsSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model=Patients
+        fields="__all__"
+
+class AdmissionsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Admissions
         fields="__all__"
 
-class MedicalRecordsSerializer(serializers.ModelSerializer):
+class MedicalRecordsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=MedicalRecords
         fields="__all__"
 
-class PaymentsSerializer(serializers.ModelSerializer):
+class PaymentsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Payments
         fields="__all__"

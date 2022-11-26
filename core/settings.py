@@ -31,8 +31,9 @@ DEBUG = config('DEBUG',default=False,cast=bool)
 # Application definition
 
 INSTALLED_APPS = [
-    "rest_framework",
     "api",
+    "rest_framework",
+    "rest_framework_mongoengine",
     'corsheaders',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -89,8 +90,12 @@ else:
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-mongoengine.connect(host=config("MONGO_DB_URI"))
+    
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# To fix cert issues:-
+# Install pymongo==3.12.3
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+mongoengine.connect(host=config("MONGO_DB_URI"),ssl_ca_certs=certifi.where())
 
 
 # Password validation
