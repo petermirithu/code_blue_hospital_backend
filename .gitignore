@@ -1,0 +1,6 @@
+__pycache__
+.env
+virtual
+media
+.DS_Store
+logs
