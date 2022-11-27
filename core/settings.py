@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 from decouple import config
 import mongoengine
@@ -30,7 +31,7 @@ DEBUG = config('DEBUG',default=False,cast=bool)
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS = [    
     "api",
     "rest_framework",
     "rest_framework_mongoengine",
@@ -80,6 +81,8 @@ JWT_SECRET = config("JWT_SECRET")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
 
 ENCODE_ALGORITHM = config("ENCODE_ALGORITHM")
+
+AES_KEY = config("AES_KEY")
 
 if config('MODE')=='prod':
     CORS_ALLOWED_ORIGINS=config('ALLOWED_HOSTS').split(",")

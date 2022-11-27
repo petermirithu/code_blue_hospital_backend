@@ -5,6 +5,7 @@ import jwt
 from django.conf import settings
 import string
 import random
+from django.utils.timezone import now as getTimeNow
 
 # Password Section
 def hash_password(password):    
@@ -39,3 +40,14 @@ def encode_value(payload):
 def decode_value(encoded):    
     decoded = jwt.decode(encoded, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])                                         
     return decoded
+
+# Encrypt Data Section
+def encrypt_value(plainText):
+    now = getTimeNow()
+    payload = {'plainText': plainText,'createdAt': now.strftime("%m/%d/%Y, %H:%M:%S")}
+    cipher = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    return cipher
+
+def decrypt_value(encoded):    
+    plainText = jwt.decode(encoded, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])                                         
+    return plainText["plainText"]
