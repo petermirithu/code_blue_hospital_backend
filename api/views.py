@@ -137,7 +137,7 @@ def login_user(request):
                 if(check_password(password, profile.password) == True):                    
                     now = getTimeNow()                    
                     payload = {'username': username,'loggedinAt': now.strftime("%m/%d/%Y, %H:%M:%S")}                    
-                    profile.token=encode_value(payload)                                         
+                    profile.token=encode_value(payload)                                                             
                     serialised_profile = AdministratorsSerializer(profile, many=False)                                        
                     return Response(serialised_profile.data, status=status.HTTP_200_OK)
                 else:
@@ -148,7 +148,7 @@ def login_user(request):
                     if(check_password(password, profile.password) == True):
                         now = getTimeNow()
                         payload = {'username': username, 'loggedinAt': now.strftime("%m/%d/%Y, %H:%M:%S")}
-                        profile.token=encode_value(payload)                        
+                        profile.token=encode_value(payload)                                                
                         serialised_profile = DoctorsSerializer(profile, many=False)                        
                         return Response(serialised_profile.data, status=status.HTTP_200_OK)
                     else:
@@ -159,7 +159,7 @@ def login_user(request):
                         if(check_password(password, profile.password) == True):
                             now = getTimeNow()
                             payload = {'username': username, 'loggedinAt': now.strftime("%m/%d/%Y, %H:%M:%S")}
-                            profile.token=encode_value(payload)                                                    
+                            profile.token=encode_value(payload)                                                                                
                             serialised_profile = PharmacistsSerializer(profile, many=False)                            
                             return Response(serialised_profile.data, status=status.HTTP_200_OK)
                         else:
@@ -170,8 +170,8 @@ def login_user(request):
                             if(check_password(password, profile.password) == True):
                                 now = getTimeNow()
                                 payload = {'username': username, 'loggedinAt': now.strftime("%m/%d/%Y, %H:%M:%S")}
-                                profile.token=encode_value(payload)                                                    
-                                serialised_profile = PharmacistsSerializer(profile, many=False)                                
+                                profile.token=encode_value(payload)                                                                                    
+                                serialised_profile = NursesSerializer(profile, many=False)                                
                                 return Response(serialised_profile.data, status=status.HTTP_200_OK)
                             else:
                                 return Response('Invalid login credentials', status=statusBadRequest)
