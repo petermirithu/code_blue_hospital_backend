@@ -92,18 +92,10 @@ class Admissions(Document):
     Primary key is automatically generated as _id
     '''
     patient_id=ReferenceField(Patients, reverse_delete_rule=CASCADE)
-    doctor_id=ReferenceField(Patients, reverse_delete_rule=CASCADE)
-    nurse_id=ReferenceField(Patients, reverse_delete_rule=CASCADE)
+    doctor_id=ReferenceField(Doctors, reverse_delete_rule=CASCADE)
+    nurse_id=ReferenceField(Nurses, reverse_delete_rule=CASCADE)
     symptoms=StringField(required=True)
     treated=BooleanField(default=False)    
-    created_at=DateTimeField(required=True)
-    updated_at=DateTimeField(default=datetime.datetime.utcnow)
-
-class MedicalRecords(Document):
-    '''
-    Primary key is automatically generated as _id
-    '''
-    admission_id=ReferenceField(Admissions, reverse_delete_rule=CASCADE)    
     diagnosis=StringField()
     notes=StringField()
     prescription=StringField()    
@@ -116,7 +108,6 @@ class Payments(Document):
     '''
     admission_id=ReferenceField(Admissions, reverse_delete_rule=CASCADE)    
     pharmacist_id=ReferenceField(Pharmacists, reverse_delete_rule=CASCADE)        
-    amount_paid=IntField(required=True)
-    method_used=StringField(required=True)    
+    amount_paid=IntField(required=True)    
     created_at=DateTimeField(required=True)
     updated_at=DateTimeField(default=datetime.datetime.utcnow)    

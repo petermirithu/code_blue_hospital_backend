@@ -30,12 +30,7 @@ class AdmissionsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Admissions
         fields="__all__"
-
-class MedicalRecordsSerializer(serializers.DocumentSerializer):
-    class Meta:
-        model=MedicalRecords
-        fields="__all__"
-
+        
 class PaymentsSerializer(serializers.DocumentSerializer):
     class Meta:
         model=Payments

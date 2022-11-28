@@ -36,12 +36,12 @@ def register_user(request):
         phone_no=encrypt_value(data["phone_no"])
         user_type=data["user_type"]
 
-        gender=None
-        status=None
-        date_of_birth=None
-        fee=None
-        specialization=None
-        administrator_id=None
+        gender=""
+        status=""
+        date_of_birth=""
+        fee=0
+        specialization=""
+        administrator_id=""
 
         if user_type=="doctor" or user_type=="nurse" or user_type=="pharmacist":
             gender=data["gender"]
@@ -53,7 +53,7 @@ def register_user(request):
             specialization=data["specialization"]
 
         if user_type=="doctor":
-            fee=data["fee"]        
+            fee=data["fee"]
         
         if(username):
             username = username.lower()
@@ -265,28 +265,38 @@ def get_revenue(request):
 def update_user(request):
     data = json.loads(request.body)
     try:        
+        print(data)
+
         name=encrypt_value(data["name"])
         email=encrypt_value(data["email"])
         phone_no=encrypt_value(data["phone_no"])
         user_type=data["user_type"]
         user_id=data["id"]
 
-        gender=None
-        status=None
-        date_of_birth=None
-        fee=None
-        specialization=None        
+        gender=""
+        status=""
+        date_of_birth=""
+        fee=0
+        specialization=""
+        height=0
+        weight=0   
 
-        if user_type=="doctor" or user_type=="nurse" or user_type=="pharmacist":
+        if user_type=="doctor" or user_type=="nurse" or user_type=="pharmacist" or user_type=="patient":
             gender=data["gender"]
-            status=data["status"]
             date_of_birth=encrypt_value(data["date_of_birth"])            
+
+        if user_type=="doctor" or user_type=="nurse" or user_type=="pharmacist":            
+            status=data["status"]
 
         if user_type=="doctor" or user_type=="nurse":            
             specialization=data["specialization"]
 
         if user_type=="doctor":
-            fee=data["fee"]                                        
+            fee=data["fee"]
+
+        if user_type=="patient":
+            height=data["height"]
+            weight=data["weight"]                                             
                    
         if user_type=="doctor":
             Doctors.objects.filter(id=user_id).update(                                
@@ -317,8 +327,18 @@ def update_user(request):
                 gender=gender,                            
                 status=status,                            
                 date_of_birth=date_of_birth,
-            )                                                    
-        return Response('Successfully created an account for the new '+user_type.title()+' account', status=statusCreated)        
+            )  
+        elif user_type=="patient":           
+            Patients.objects.filter(id=user_id).update(  
+                name=name,
+                email=email,
+                phone_no=phone_no,
+                gender=gender,                                            
+                date_of_birth=date_of_birth,
+                weight=weight,
+                height=height
+            )                                                                
+        return Response('Successfully updated the user', status=statusOk)        
     except:
         logger.error(traceback.format_exc())
         return Response('An error occured while creating the new account', status=statusBadRequest)    
@@ -334,7 +354,185 @@ def delete_user(request,user_type,user_id):
             Nurses.objects(id=user_id).delete()
         elif user_type=="pharmacist":            
             Pharmacists.objects(id=user_id).delete()                                                                           
+        elif user_type=="patient":            
+            Patients.objects(id=user_id).delete()                                                                           
         return Response('Successfully delete the account', status=statusCreated)        
     except:
         logger.error(traceback.format_exc())
         return Response('An error occured while deleting that account', status=statusBadRequest)     
+
+@api_view(['POST'])
+@permission_classes([isAuthorized])
+def add_patient(request):                   
+    data = json.loads(request.body)
+    try:                
+        name=encrypt_value(data["name"])
+        email=encrypt_value(data["email"])
+        phone_no=encrypt_value(data["phone_no"])
+        date_of_birth=encrypt_value(data["date_of_birth"])
+        gender=data["gender"]        
+        weight=data["weight"]        
+        height=data["height"]          
+        new_user = Patients(                                        
+                    name=name,
+                    email=email,
+                    phone_no=phone_no,
+                    gender=gender,                                                              
+                    date_of_birth=date_of_birth,
+                    weight=weight,
+                    height=height,
+                    created_at=getTimeNow()
+                )                                                                                   
+        new_user.save()    
+        return Response('Successfully added the new patient', status=statusCreated)                
+    except:
+        logger.error(traceback.format_exc())
+        return Response('An error occured while adding the new patient', status=statusBadRequest)
+            
+
+
+@api_view(['GET'])
+@permission_classes([isAuthorized])
+def get_admissions(request):
+    try:
+        listData = Admissions.objects.select_related(max_depth=1)
+        serialized_listData = AdmissionsSerializer(listData, many=True)                                
+        admissions=[]
+        counter=0                               
+
+        for item in listData:  
+            preObject={
+                "id":serialized_listData.data[counter]["id"],
+                "patient":{
+                    "id":serialized_listData.data[counter]["patient_id"],
+                    "name":decrypt_value(item.patient_id.name),
+                },
+                "nurse":{
+                    "id":serialized_listData.data[counter]["nurse_id"],
+                    "name":decrypt_value(item.nurse_id.name),
+                },
+                "doctor":{
+                    "id":serialized_listData.data[counter]["doctor_id"],
+                    "name":decrypt_value(item.doctor_id.name),
+                },
+                "symptoms":decrypt_value(item["symptoms"]),
+                
+                "treated":item.treated,
+                "created_at":item.created_at
+            } 
+            if item["prescription"] and len(item["prescription"])>0:
+                preObject["prescription"]=decrypt_value(item["prescription"])
+
+            if item["diagnosis"] and len(item["diagnosis"])>0:
+                preObject["diagnosis"]=decrypt_value(item["diagnosis"])            
+
+            if item["notes"] and len(item["notes"])>0:
+                preObject["notes"]=decrypt_value(item["notes"])                        
+
+            admissions.append(preObject)                                   
+            counter+=1
+        return Response(admissions, status=status.HTTP_200_OK)
+    except:
+        logger.error(traceback.format_exc())
+        return Response("An error occured while fetching all admissions", status=statusBadRequest)    
+        
+@api_view(['POST'])
+@permission_classes([isAuthorized])
+def add_admissions(request):                   
+    data = json.loads(request.body)
+    try:                
+        symptoms=encrypt_value(data["symptoms"])        
+        nurse_id=data["nurse_id"]        
+        doctor_id=data["doctor_id"]   
+        patient_id=data["patient_id"]        
+
+        new_record = Admissions(                                        
+                    nurse_id=nurse_id,
+                    doctor_id=doctor_id,
+                    patient_id=patient_id,
+                    symptoms=symptoms,
+                    created_at=getTimeNow()
+                )                                                                                   
+        new_record.save()    
+        return Response('Successfully added the new record', status=statusCreated)                
+    except:
+        logger.error(traceback.format_exc())
+        return Response('An error occured while adding the new record', status=statusBadRequest)
+         
+@api_view(['POST'])
+@permission_classes([isAuthorized])
+def update_admissions(request):                   
+    data = json.loads(request.body)
+    try:                
+        symptoms=encrypt_value(data["symptoms"])                           
+        prescription=""
+        diagnosis=""
+        notes=""
+        if data["prescription"] and len(data["prescription"])>0:
+            prescription=encrypt_value(data["prescription"])
+
+        if data["diagnosis"] and len(data["diagnosis"])>0:
+            diagnosis=encrypt_value(data["diagnosis"])            
+
+        if data["notes"] and len(data["notes"])>0:
+            notes=encrypt_value(data["notes"])                        
+
+        doctor=Doctors.objects.get(id=data["doctor_id"])
+        patient=Patients.objects.get(id=data["patient_id"])
+        admission_id=data["admission_id"]  
+
+        Admissions.objects.filter(id=admission_id).update(              
+            doctor_id=doctor.id,
+            patient_id=patient.id,
+            symptoms=symptoms,
+            prescription=prescription,
+            notes=notes,
+            diagnosis=diagnosis
+        )                  
+        return Response('Successfully updated the record', status=statusOk)                
+    except:
+        logger.error(traceback.format_exc())
+        return Response('An error occured while adding the record', status=statusBadRequest)
+
+@api_view(['DELETE'])
+@permission_classes([isAuthorized])
+def delete_admission(request,admission_id):    
+    try:                      
+        Admissions.objects(id=admission_id).delete()                                                                                   
+        return Response('Successfully delete the admission record', status=statusCreated)        
+    except:
+        logger.error(traceback.format_exc())
+        return Response('An error occured while deleting that admission record', status=statusBadRequest)     
+        
+@api_view(['POST'])
+@permission_classes([isAuthorized])
+def add_payment(request):                   
+    data = json.loads(request.body)
+    try:                
+        amount_paid=data["amount_paid"]       
+        admission_id=data["admission_id"]        
+        pharmacist_id=data["pharmacist_id"]                   
+
+        new_record = Payments(                                        
+                    amount_paid=amount_paid,
+                    admission_id=admission_id,
+                    pharmacist_id=pharmacist_id,                    
+                    created_at=getTimeNow()
+                )                                                                                   
+        new_record.save()    
+        Admissions.objects.filter(id=admission_id).update(treated=True)          
+        return Response('Successfully added the new record', status=statusCreated)                
+    except:
+        logger.error(traceback.format_exc())
+        return Response('An error occured while adding the new record', status=statusBadRequest)
+
+@api_view(['GET'])
+@permission_classes([isAuthorized])
+def get_payments(request):
+    try:
+        listData = Payments.objects                
+        serialized_listData = PaymentsSerializer(listData, many=True)                                
+        return Response(serialized_listData.data, status=status.HTTP_200_OK)
+    except:
+        # logger.error(traceback.format_exc())
+        return Response("An error occured while fetching all payments", status=statusBadRequest) 
