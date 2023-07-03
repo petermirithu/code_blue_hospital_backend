@@ -99,7 +99,7 @@ else:
 # To fix cert issues:-
 # Install pymongo==3.12.3
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-mongoengine.connect(host=config("MONGO_DB_URI"),ssl_ca_certs=certifi.where())
+mongoengine.connect(host=config("MONGO_DB_URI")+"/hospital_management",ssl_ca_certs=certifi.where())
 
 
 # Password validation

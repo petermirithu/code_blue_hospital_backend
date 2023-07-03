@@ -228,7 +228,7 @@ def get_pharmacists(request):
         serialized_listData = PharmacistsSerializer(listData, many=True)                                
         return Response(serialized_listData.data, status=status.HTTP_200_OK)
     except:
-        # logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         return Response("An error occured while fetching all Pharmacists", status=statusBadRequest)    
 
 @api_view(['GET'])
@@ -244,7 +244,7 @@ def get_nurses(request):
         serialized_listData = NursesSerializer(listData, many=True)                                
         return Response(serialized_listData.data, status=status.HTTP_200_OK)
     except:
-        # logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         return Response("An error occured while fetching all Nurses", status=statusBadRequest)    
 
 @api_view(['GET'])
@@ -257,7 +257,7 @@ def get_revenue(request):
             total+=payment.amount_paid                            
         return Response(total, status=status.HTTP_200_OK)
     except:
-        # logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         return Response("An error occured while fetching all Nurses", status=statusBadRequest)     
         
 @api_view(['POST'])
@@ -534,5 +534,5 @@ def get_payments(request):
         serialized_listData = PaymentsSerializer(listData, many=True)                                
         return Response(serialized_listData.data, status=status.HTTP_200_OK)
     except:
-        # logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         return Response("An error occured while fetching all payments", status=statusBadRequest) 
